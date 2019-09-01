@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MySqlConnector.Core;
 using MySqlConnector.Logging;
+using MySqlConnector.Protocol;
 using MySqlConnector.Protocol.Payloads;
 using MySqlConnector.Protocol.Payloads.Replication;
 using MySqlConnector.Protocol.Payloads.Replication.Events;
@@ -822,10 +823,28 @@ namespace MySql.Data.MySqlClient
 			while (true)
 			{
 				var response = await m_session.ReceiveReplyAsync(AsyncIOBehavior, default);
-				var header = EventHeader.Create(response.Span);
-
-				Console.Write("Read");
+				ParseBinlog(response);
 			}
+		}
+
+		private void ParseBinlog(PayloadData payload)
+		{
+			var reader = new ByteArrayReader(payload.Span);
+
+			object eventData;
+			var eventHeader = EventHeader.Create(ref reader);
+
+			switch (eventHeader.EventType)
+			{
+			case EventType.RotateEvent:
+				eventData = RotateEvent.Create(ref reader);
+				break;
+			default:
+				eventData = null;
+				break;
+			}
+
+			Console.Write("Read");
 		}
 	}
 }

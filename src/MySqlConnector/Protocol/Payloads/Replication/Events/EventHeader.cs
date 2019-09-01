@@ -1,4 +1,3 @@
-using System;
 using MySqlConnector.Protocol.Serialization;
 
 namespace MySqlConnector.Protocol.Payloads.Replication.Events
@@ -12,9 +11,8 @@ namespace MySqlConnector.Protocol.Payloads.Replication.Events
 		public int Position { get; }
 		public EventFlags Flags { get; }
 
-		public static EventHeader Create(ReadOnlySpan<byte> span)
+		public static EventHeader Create(ref ByteArrayReader reader)
 		{
-			var reader = new ByteArrayReader(span);
 			reader.ReadByte(); // skip 0x00 OK byte
 			var timestamp = reader.ReadInt32();
 			var eventType = (EventType)reader.ReadByte();
