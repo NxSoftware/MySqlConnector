@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using MySqlConnector.Core;
 using MySqlConnector.Logging;
 using MySqlConnector.Protocol.Payloads;
+using MySqlConnector.Protocol.Payloads.Replication;
+using MySqlConnector.Protocol.Payloads.Replication.Events;
 using MySqlConnector.Protocol.Serialization;
 using MySqlConnector.Utilities;
 
@@ -810,5 +812,20 @@ namespace MySql.Data.MySqlClient
 		bool m_isDisposed;
 		Dictionary<string, CachedProcedure> m_cachedProcedures;
 		MySqlDataReader m_activeReader;
+
+		public async Task StartStreamingBinlogAsync()
+		{
+			var result = await m_session.SendAsync(
+				StartBinlogNetworkStream.Create("mysql-bin.000003"),
+				AsyncIOBehavior, default);
+
+			while (true)
+			{
+				var response = await m_session.ReceiveReplyAsync(AsyncIOBehavior, default);
+				var header = EventHeader.Create(response.Span);
+
+				Console.Write("Read");
+			}
+		}
 	}
 }

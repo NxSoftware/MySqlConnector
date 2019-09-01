@@ -5,6 +5,7 @@ namespace MySqlConnector.Protocol
 		Quit = 1,
 		InitDatabase = 2,
 		Query = 3,
+		BinlogDump = 0x12,
 		Ping = 14,
 		ChangeUser = 17,
 		StatementPrepare = 22,
